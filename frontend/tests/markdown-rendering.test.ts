@@ -501,7 +501,7 @@ test("WechatArticle 生成公众号可粘贴的内联样式富文本", () => {
   assert.doesNotMatch(html, /<header[^>]*text-align:center/);
   assert.match(
     html,
-    /<p style="margin:0;line-height:1\.75;text-align:center">公众号居中正文<\/p>/,
+    /<p style="margin:0;line-height:1\.75;font-weight:400;text-align:center">公众号居中正文<\/p>/,
   );
   assert.match(
     html,
@@ -525,7 +525,7 @@ test("WechatArticle 生成公众号可粘贴的内联样式富文本", () => {
   assert.doesNotMatch(html, /<\/strong>[\u00a0\u2060]vibe coding/);
   assert.match(
     html,
-    /<p style="margin:0;line-height:1\.75">正文包含/,
+    /<p style="margin:0;line-height:1\.75;font-weight:400">正文包含/,
   );
   assert.match(
     html,
@@ -674,7 +674,7 @@ test("WechatArticle 为七种卡片主题生成互不共享的内联配色", () 
     assert.match(
       html,
       new RegExp(
-        `<p style="margin:0;line-height:${expectedBodyLineHeight}">正文与`,
+        `<p style="margin:0;line-height:${expectedBodyLineHeight};font-weight:400">正文与`,
       ),
       `${theme} 的正文段落必须自行携带主题行高，不能只依赖父容器继承`,
     );
@@ -804,7 +804,7 @@ test("WechatArticle 长文只在段落重复微信需要的行高且不超过长
   assert.equal((html.match(/来源：<a /g) ?? []).length, 10);
   assert.doesNotMatch(html, /data-smartisan-frame="outer"/);
   assert.doesNotMatch(html, /<p style="[^"]*font-family:/);
-  assert.match(html, /<p style="margin:0;line-height:1\.75">/);
+  assert.match(html, /<p style="margin:0;line-height:1\.75;font-weight:400">/);
   assert.match(
     html,
     /data-smartisan-theme="apple-notes" style="[^"]*font-size:15px[^"]*line-height:1\.75[^"]*white-space:pre-wrap/,
@@ -832,10 +832,33 @@ test("WechatArticle 只为 Bear 收紧分节间隔并保持既有空行", () => 
     }),
   );
 
-  assert.match(bearHtml, /height:0\.704em/);
+  assert.match(bearHtml, /<p style="margin:0;line-height:0\.704em">\u00a0<\/p>/);
   assert.match(bearHtml, /margin:0\.704em 0 0/);
   assert.match(bearHtml, /margin:0 0 0\.704em/);
-  assert.match(defaultHtml, /height:0\.704em/);
+  assert.match(defaultHtml, /<p style="margin:0;line-height:0\.704em">\u00a0<\/p>/);
   assert.doesNotMatch(defaultHtml, /margin:0\.704em 0 0/);
   assert.doesNotMatch(defaultHtml, /margin:0 0 0\.704em/);
+});
+
+test("WechatArticle 连续空行有可保留的内容且正文与粗体字重分明", () => {
+  const html = renderToStaticMarkup(
+    createElement(WechatArticle, {
+      footerBrand: "空行与字重测试",
+      footerHammerUrl: "https://cdn.example.com/hammer.png",
+      footerVia: "via Feedback",
+      markdown: "普通文字\n\n\n第二段 **重点** 后续",
+      theme: "default",
+    }),
+  );
+
+  assert.equal(
+    (html.match(/<p style="margin:0;line-height:0\.704em">\u00a0<\/p>/g) ?? [])
+      .length,
+    2,
+  );
+  assert.doesNotMatch(html, /<span style="display:block;height:0\.704em"><\/span>/);
+  assert.match(
+    html,
+    /<p style="margin:0;line-height:1\.75;font-weight:400">第二段 <strong style="font-weight:600">重点<\/strong> 后续<\/p>/,
+  );
 });

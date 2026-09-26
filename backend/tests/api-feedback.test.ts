@@ -568,12 +568,17 @@ test("Express 提供健康检查和内容寻址图片存储", async (context) =>
     assert.doesNotMatch(wechat.html, /<header[^>]*text-align:center/);
     assert.match(
       wechat.html,
-      /<p style="margin:0;line-height:1\.75;text-align:center">公众号测试<\/p>/,
+      /<p style="margin:0;line-height:1\.75;font-weight:400;text-align:center">公众号测试<\/p>/,
     );
     assert.match(
       wechat.html,
-      /<p style="margin:0;line-height:1\.75">这是 <strong/,
+      /<p style="margin:0;line-height:1\.75;font-weight:400">这是 <strong/,
     );
+    assert.match(
+      wechat.html,
+      /<p style="margin:0;line-height:0\.704em">\u00a0<\/p>/,
+    );
+    assert.doesNotMatch(wechat.html, /<span style="display:block;height:0\.704em"><\/span>/);
     assert.match(
       wechat.html,
       /data-smartisan-theme="default" style="[^"]*color:#665749[^"]*font-size:15px[^"]*line-height:1\.75[^"]*white-space:pre-wrap/,

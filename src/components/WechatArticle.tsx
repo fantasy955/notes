@@ -97,6 +97,7 @@ function createWechatRenderContext(
     bodyParagraphStyle: {
       margin: "0",
       lineHeight: bodyLineHeight,
+      fontWeight: 400,
     },
   };
 }
@@ -268,9 +269,9 @@ function createMarkdownComponents(
 
     if (isBlankLine) {
       return (
-        <span
-          style={{ display: "block", height: blockGap, ...style }}
-        />
+        <p style={{ margin: "0", lineHeight: blockGap, ...style }}>
+          {MARKDOWN_BLANK_LINE}
+        </p>
       );
     }
 
