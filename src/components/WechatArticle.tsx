@@ -516,6 +516,57 @@ function createMarkdownComponents(
   };
 }
 
+function WechatSectionContent({
+  components,
+  content,
+  context,
+}: {
+  components: Components;
+  content: string;
+  context: WechatRenderContext;
+}) {
+  const lines = content ? content.split("\n") : [];
+  let firstBodyLine = 0;
+  let lastBodyLine = lines.length;
+
+  while (firstBodyLine < lastBodyLine && !lines[firstBodyLine].trim()) {
+    firstBodyLine += 1;
+  }
+
+  while (lastBodyLine > firstBodyLine && !lines[lastBodyLine - 1].trim()) {
+    lastBodyLine -= 1;
+  }
+
+  const blankParagraphs = (count: number) =>
+    Array.from({ length: count }, (_, index) => (
+      <p key={index} style={{ margin: "0", lineHeight: context.blockGap }}>
+        {MARKDOWN_BLANK_LINE}
+      </p>
+    ));
+  const body = lines.slice(firstBodyLine, lastBodyLine).join("\n");
+
+  return (
+    <>
+      {blankParagraphs(firstBodyLine)}
+      {body ? (
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm, remarkManualLineParagraphs]}
+          components={components}
+        >
+          {preserveMarkdownBlankLines(
+            protectWechatInlineBoundaries(
+              detachUnindentedImagesFromLists(
+                removeTrailingEmptyListItems(body),
+              ),
+            ),
+          )}
+        </ReactMarkdown>
+      ) : null}
+      {blankParagraphs(lines.length - lastBodyLine)}
+    </>
+  );
+}
+
 function SectionHeading({
   children,
   components,
@@ -773,18 +824,11 @@ function WechatArticleContent({
                 </SectionHeading>
               )
             ) : null}
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm, remarkManualLineParagraphs]}
+            <WechatSectionContent
               components={components}
-            >
-              {preserveMarkdownBlankLines(
-                protectWechatInlineBoundaries(
-                  detachUnindentedImagesFromLists(
-                    removeTrailingEmptyListItems(section.content),
-                  ),
-                ),
-              )}
-            </ReactMarkdown>
+              content={section.content}
+              context={context}
+            />
           </section>
         ))
       ) : (
@@ -821,7 +865,9 @@ export function WechatArticle({
     themeStyle,
   } = context;
   const components = createMarkdownComponents(context);
-  const sections = splitSections(markdown);
+  const sections = splitSections(markdown, {
+    preserveHeadingBlankLines: true,
+  });
   const isSmartisan = themeStyle.layout === "smartisan";
   const isApple = themeStyle.layout === "apple";
   const isBazhahei = themeStyle.layout === "bazhahei";

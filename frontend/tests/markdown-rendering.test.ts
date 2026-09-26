@@ -147,6 +147,18 @@ test("splitSections 将 H2 边界空行交给标题间距而不渲染在标题�
   ]);
 });
 
+test("splitSections 可为公众号保留 H2 前后的原始空行", () => {
+  const sections = splitSections(
+    "第一段\n\n\n## 第一节\n\n\n第二段",
+    { preserveHeadingBlankLines: true },
+  );
+
+  assert.deepEqual(sections, [
+    { heading: "", content: "第一段\n\n" },
+    { heading: "第一节", content: "\n\n第二段" },
+  ]);
+});
+
 test("splitSections 将首个方括号整行标记为仅居中的正文行", () => {
   const sections = splitSections(
     [
@@ -796,8 +808,8 @@ test("WechatArticle 长文只在段落重复微信需要的行高且不超过长
   );
 
   assert.ok(
-    Array.from(html).length < 13_000,
-    `十节长文的公众号 HTML 应少于 1.3 万字符，实际为 ${Array.from(html).length}`,
+    Array.from(html).length < 14_000,
+    `保留小标题两侧空行后，十节长文的公众号 HTML 应少于 1.4 万字符，实际为 ${Array.from(html).length}`,
   );
   assert.equal((html.match(/<h2\b/g) ?? []).length, 10);
   assert.equal((html.match(/<blockquote\b/g) ?? []).length, 10);
@@ -860,5 +872,23 @@ test("WechatArticle 连续空行有可保留的内容且正文与粗体字重分
   assert.match(
     html,
     /<p style="margin:0;line-height:1\.75;font-weight:400">第二段 <strong style="font-weight:600">重点<\/strong> 后续<\/p>/,
+  );
+});
+
+test("WechatArticle 保留公众号草稿中小标题两侧的连续空行", () => {
+  const html = renderToStaticMarkup(
+    createElement(WechatArticle, {
+      footerBrand: "小标题空行测试",
+      footerHammerUrl: "https://cdn.example.com/hammer.png",
+      footerVia: "via Feedback",
+      markdown: "第一段\n\n\n## 第一节\n\n\n第二段",
+      theme: "default",
+    }),
+  );
+
+  assert.equal(
+    (html.match(/<p style="margin:0;line-height:0\.704em">\u00a0<\/p>/g) ?? [])
+      .length,
+    4,
   );
 });

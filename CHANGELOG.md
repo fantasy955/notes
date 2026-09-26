@@ -2,6 +2,12 @@
 
 本文件记录锤子便签中值得用户关注的变更，格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循[语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [1.10.5] - 2026-09-26
+
+### 修复
+
+- 发布为公众号草稿时，保留 Markdown 小标题前后的连续空行，避免这些用于排版的换行在分节时丢失。
+
 ## [1.10.4] - 2026-09-26
 
 ### 修复
@@ -258,6 +264,7 @@
 - PC 版便签操作栏右侧按钮调整为“AI、删除、分享”的顺序，与 APP 版详情操作保持一致。
 - 重置 Hermes 安装链接前会明确提示旧链接立即失效，并要求二次确认，避免误触轮换。
 
+[1.10.5]: https://github.com/zhaoolee/notes/compare/1.10.4...1.10.5
 [1.10.4]: https://github.com/zhaoolee/notes/compare/1.10.3...1.10.4
 [1.10.3]: https://github.com/zhaoolee/notes/compare/1.10.2...1.10.3
 [1.10.2]: https://github.com/zhaoolee/notes/compare/1.10.1...1.10.2

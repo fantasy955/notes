@@ -79,7 +79,10 @@ export function preserveMarkdownBlankLines(markdown: string): string {
   return preservedLines.join("\n");
 }
 
-export function splitSections(markdown: string): NoteSection[] {
+export function splitSections(
+  markdown: string,
+  options: { preserveHeadingBlankLines?: boolean } = {},
+): NoteSection[] {
   const lines = markdown.replace(/\r\n/g, "\n").split("\n");
   const sections: RawSection[] = [];
   let current: RawSection | null = null;
@@ -98,8 +101,10 @@ export function splitSections(markdown: string): NoteSection[] {
     };
     startIndex = firstContentIndex + 1;
 
-    while (startIndex < lines.length && !lines[startIndex].trim()) {
-      startIndex += 1;
+    if (!options.preserveHeadingBlankLines) {
+      while (startIndex < lines.length && !lines[startIndex].trim()) {
+        startIndex += 1;
+      }
     }
   }
 
@@ -108,7 +113,9 @@ export function splitSections(markdown: string): NoteSection[] {
       if (current) {
         sections.push({
           ...current,
-          lines: trimTrailingBlankLines(current.lines),
+          lines: options.preserveHeadingBlankLines
+            ? current.lines
+            : trimTrailingBlankLines(current.lines),
         });
       }
 
@@ -119,7 +126,12 @@ export function splitSections(markdown: string): NoteSection[] {
       continue;
     }
 
-    if (current?.heading && current.lines.length === 0 && !line.trim()) {
+    if (
+      !options.preserveHeadingBlankLines &&
+      current?.heading &&
+      current.lines.length === 0 &&
+      !line.trim()
+    ) {
       continue;
     }
 
@@ -145,5 +157,10 @@ export function splitSections(markdown: string): NoteSection[] {
         : {}),
       content: section.lines.join("\n"),
     }))
-    .filter((section) => section.heading || section.content.trim());
+    .filter(
+      (section) =>
+        section.heading ||
+        section.content.trim() ||
+        (options.preserveHeadingBlankLines && section.content.length > 0),
+    );
 }

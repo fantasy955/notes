@@ -133,7 +133,7 @@ test("changelog 解析器保留便签分节并解析版本比较链接", () => {
   const sections = getChangelogSections(changelog);
   const hasUnreleasedSection = /^## \[未发布\]/m.test(changelog);
   const currentReleaseSectionIndex = hasUnreleasedSection ? 2 : 1;
-  const draftReleaseSectionIndex = currentReleaseSectionIndex + 1;
+  const draftReleaseSectionIndex = currentReleaseSectionIndex + 2;
   const frameReleaseSectionIndex = draftReleaseSectionIndex + 1;
   const gifReleaseSectionIndex = frameReleaseSectionIndex + 1;
   const previousReleaseSectionIndex = gifReleaseSectionIndex + 1;
@@ -149,10 +149,19 @@ test("changelog 解析器保留便签分节并解析版本比较链接", () => {
   }
   assert.equal(
     sections[currentReleaseSectionIndex]?.heading,
-    "[1.10.4](https://github.com/zhaoolee/notes/compare/1.10.3...1.10.4) - 2026-09-26",
+    "[1.10.5](https://github.com/zhaoolee/notes/compare/1.10.4...1.10.5) - 2026-09-26",
   );
   assert.match(
     sections[currentReleaseSectionIndex]?.content ?? "",
+    /公众号草稿.*Markdown 小标题前后的连续空行.*换行.*分节时丢失/s,
+  );
+  const previousFixReleaseSectionIndex = currentReleaseSectionIndex + 1;
+  assert.equal(
+    sections[previousFixReleaseSectionIndex]?.heading,
+    "[1.10.4](https://github.com/zhaoolee/notes/compare/1.10.3...1.10.4) - 2026-09-26",
+  );
+  assert.match(
+    sections[previousFixReleaseSectionIndex]?.content ?? "",
     /公众号.*连续 Markdown 空行.*占位段落.*正常字重.*加粗文字/s,
   );
   assert.equal(
