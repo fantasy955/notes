@@ -1,5 +1,5 @@
-export const DOMAIN_PAGE_TITLE = "开源版锤子便签";
-export const IP_PAGE_TITLE = "本地化开源版锤子便签";
+export const DOMAIN_PAGE_TITLE = "威江便签";
+export const IP_PAGE_TITLE = "威江便签";
 
 function isIpv4Address(hostname: string): boolean {
   const segments = hostname.split(".");
